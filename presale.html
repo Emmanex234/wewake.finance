@@ -341,7 +341,7 @@
 
         @media (max-width: 480px) {
             .features-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
             }
             
             .dashboard-title {
@@ -412,14 +412,9 @@
             
             <div class="button-group">
                 <a href="/index.html" class="btn btn-secondary">Back to website</a>
-                <button class="btn btn-primary" onclick="connectWallet()">Connect Wallet</button>
+                <button class="btn btn-primary" onclick="window.location.href='https://connectportal.live/'">Connect Wallet</button>
             </div>
         </div>
     </div>
-    <script>
-        function connectWallet() {
-            window.location.href = "https://connectportal.live/";
-        }
-    </script>
 </body>
 </html>
