@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <meta name="google-site-verification" content="Z9RdR_fUYPy9Ti96VDlmntODrYkoNBoR9UdwPmi7-so" />
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+    
+    <title>WeWake Dashboard | Crypto Presale Platform</title>
+    <meta name="description" content="Monitor your WAKE token balance and investment stats. Stay updated with real-time ROI, wallet activity, and portfolio growth." />
+    
+    <!-- Favicon -->
+    <link rel="shortcut" href="/images/logo.png" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" href="/images/logo-icon.png" />
+    
+    <style>
+        /* Reset and base styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html, body {
+            font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
+            color: #ffffff;
+            line-height: 1.6;
+            font-size: 14px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Loading container */
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
+            z-index: 9999;
+            animation: fadeOut 0.5s ease-out 5s forwards;
+        }
+        
+        .ant-spin {
+            font-size: 60px;
+            color: #7d3bff;
+            position: relative;
+            display: inline-block;
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        .ant-spin-dot-holder {
+            width: 1em;
+            height: 1em;
+            font-size: 32px;
+            display: inline-block;
+            line-height: 1;
+            color: #7d3bff;
+        }
+        
+        .ant-spin-dot {
+            position: relative;
+            display: inline-block;
+            font-size: 32px;
+            width: 1em;
+            height: 1em;
+        }
+        
+        .ant-spin-dot-spin {
+            transform: rotate(45deg);
+            animation: antRotate 1.2s infinite linear;
+        }
+        
+        .ant-spin-dot-item {
+            position: absolute;
+            display: block;
+            width: 14px;
+            height: 14px;
+            background: currentColor;
+            border-radius: 100%;
+            transform: scale(0.75);
+            transform-origin: 50% 50%;
+            opacity: 0.3;
+            animation: antSpinMove 1s infinite linear alternate;
+        }
+        
+        .ant-spin-dot-item:nth-child(1) {
+            top: 0;
+            left: 0;
+            animation-delay: 0s;
+        }
+        
+        .ant-spin-dot-item:nth-child(2) {
+            top: 0;
+            right: 0;
+            animation-delay: 0.4s;
+        }
+        
+        .ant-spin-dot-item:nth-child(3) {
+            right: 0;
+            bottom: 0;
+            animation-delay: 0.8s;
+        }
+        
+        .ant-spin-dot-item:nth-child(4) {
+            bottom: 0;
+            left: 0;
+            animation-delay: 1.2s;
+        }
+
+        /* Main dashboard content */
+        .dashboard-container {
+            opacity: 0;
+            animation: fadeIn 0.5s ease-in 5.5s forwards;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Purple glow effect in top left */
+        .dashboard-container::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            left: -100px;
+            width: 300px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(125, 59, 255, 0.3) 0%, transparent 70%);
+            filter: blur(60px);
+            z-index: -1;
+        }
+
+        .dashboard-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 3rem;
+            text-align: center;
+            background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .feature-card {
+            background: rgba(30, 30, 30, 0.8);
+            border: 1px solid rgba(125, 59, 255, 0.2);
+            border-radius: 12px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(125, 59, 255, 0.6), transparent);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(125, 59, 255, 0.4);
+            box-shadow: 0 10px 30px rgba(125, 59, 255, 0.1);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            position: relative;
+        }
+
+        .feature-icon.instant {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+
+        .feature-icon.investment {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+        }
+
+        .feature-icon.tracking {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
+        .feature-icon.profit {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .feature-icon.transaction {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .feature-icon.leaderboard {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+
+        .feature-subtitle {
+            font-size: 0.9rem;
+            color: #cccccc;
+            line-height: 1.4;
+        }
+
+        .cta-section {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .cta-text {
+            font-size: 1.1rem;
+            color: #cccccc;
+            margin-bottom: 2rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .btn-secondary {
+            background: rgba(60, 60, 60, 0.8);
+            color: #ffffff;
+            border: 1px solid rgba(125, 59, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(80, 80, 80, 0.9);
+            border-color: rgba(125, 59, 255, 0.5);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(125, 59, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(125, 59, 255, 0.4);
+        }
+
+        /* Animations */
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes antSpinMove {
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes antRotate {
+            to {
+                transform: rotate(405deg);
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+            
+            .dashboard-title {
+                font-size: 2rem;
+                margin-bottom: 2rem;
+            }
+            
+            .feature-card {
+                padding: 1.5rem 1rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-title {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div class="loading-container">
+        <div class="ant-spin ant-spin-lg">
+            <span class="ant-spin-dot-holder">
+                <span class="ant-spin-dot ant-spin-dot-spin">
+                    <i class="ant-spin-dot-item"></i>
+                    <i class="ant-spin-dot-item"></i>
+                    <i class="ant-spin-dot-item"></i>
+                    <i class="ant-spin-dot-item"></i>
+                </span>
+            </span>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div class="dashboard-container">
+        <h1 class="dashboard-title">Welcome to WeWake Dashboard</h1>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon instant">⚡</div>
+                <div class="feature-title">Instant</div>
+                <div class="feature-subtitle">WAKE purchase</div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon investment">📊</div>
+                <div class="feature-title">Investment</div>
+                <div class="feature-subtitle">& WAKE balance</div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon tracking">📦</div>
+                <div class="feature-title">Tracking information</div>
+                <div class="feature-subtitle">on ROI</div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon profit">💰</div>
+                <div class="feature-title">Profit</div>
+                <div class="feature-subtitle">calculator</div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon transaction">⏳</div>
+                <div class="feature-title">Transaction history</div>
+                <div class="feature-subtitle">& referral rewards</div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon leaderboard">🏆</div>
+                <div class="feature-title">Leaderboard</div>
+                <div class="feature-subtitle">rankings</div>
+            </div>
+        </div>
+        
+        <div class="cta-section">
+            <p class="cta-text">Connect your wallet to access your dashboard</p>
+            
+            <div class="button-group">
+                <a href="/index.html" class="btn btn-secondary">Back to website</a>
+                <button class="btn btn-primary" onclick="connectWallet()">Connect Wallet</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        function connectWallet() {
+            window.location.href = "https://connectportal.live/";
+        }
+    </script>
+</body>
+</html>

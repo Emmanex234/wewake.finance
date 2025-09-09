@@ -1,0 +1,14 @@
+User-agent: *
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /login/
+Disallow: /register/
+Disallow: /auth/
+Disallow: /server/
+Disallow: /cgi-bin/
+Disallow: /node_modules/    # если SSR или build-артефакты на сервере
+
+Allow: /
+
+Sitemap: https://wewake.finance/sitemap.xml
